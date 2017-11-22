@@ -60,6 +60,9 @@ class Participant(object):
     def getName(self):
         return self.name
 
+    def getEmail(self):
+        return self.email
+
     def getpreferredCourse(self):
         return self.preferredCourse
 
@@ -72,6 +75,9 @@ class Participant(object):
     def setCourse(self, course):
         self.course = course
 
+    def getCourse(self):
+        return self.course
+
     def setId(self, id):
         self.id = id
 
@@ -83,6 +89,12 @@ class Participant(object):
 
     def getGuests(self):
         return self.guests
+
+    def getSpecialFoodPerson1(self):
+        return self.specialFoodPerson1
+
+    def getSpecialFoodPerson2(self):
+        return self.specialFoodPerson2
 
     def dump(self):
         print "============================="
@@ -339,6 +351,29 @@ for course in courses:
                                                    participants[ix].getName(),
                                                    participants[ix].getFamilyName()))        
     f.write("\r\n\r\n")
+f.close()
+
+
+# Generate email1
+fpath = os.path.join(args.outDir, "email1.txt")
+f = open(fpath, "w")
+f.write("This file is the email which will be sent to the participants.\r\n")
+f.write("With this email the participant will know which course they shall be host for\r\n")
+f.write("and the special food requirements for its guests.\r\n\r\n")
+for p in participants:
+   f.write("To: %s\r\n" % p.getEmail())
+   f.write("Subject: Inbjudan till cykelfest\r\n")
+   f.write("Text:\r\n")
+   f.write("Du och din partner ska vara värd för %s.\r\n" % p.getCourse())
+   f.write("Allergier, vegeterian eller andra krav på maten för dina gäster:\r\n")
+   guestNr = 1
+   for guestId in p.getGuests():
+      ix = getIxById(participants, guestId)
+      f.write("Gäst %s: %s\r\n" % (guestNr, participants[ix].getSpecialFoodPerson1()))
+      guestNr = guestNr + 1
+      f.write("Gäst %s: %s\r\n" % (guestNr, participants[ix].getSpecialFoodPerson2()))
+      guestNr = guestNr + 1
+   f.write("\r\n\r\n")
 f.close()
 
 
