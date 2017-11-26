@@ -60,6 +60,9 @@ class Participant(object):
     def getName(self):
         return self.name
 
+    def getAddress(self):
+        return self.address
+
     def getEmail(self):
         return self.email
 
@@ -131,8 +134,10 @@ f.close()
 nbrOfParticipants = len(participants)
 oneFourth = nbrOfParticipants/4
 logging.info("Number of participants = %s", nbrOfParticipants)
+logging.info("DONE with: Read the csv file and put the info in a list array of objects")
 assert nbrOfParticipants <= 400, "Number of participants cannot be larger than 400 due to implementation of id numbers"
 assert (oneFourth)*4 == nbrOfParticipants, "Number of participants is not a multiple of 4"
+#TODO need to assert that the strings name + familyName is unique, else letter files will be overwritten
 
 
 # Determine which course each participant shall be host for
@@ -211,6 +216,7 @@ for p in participants:
         p.setCourse(courseToSet) 
         logging.info("setCourse: %s" % courseToSet)
 assert len(coursesToAssign) == 0, "Not all items in coursesToAssign where assigned to the participants"
+logging.info("DONE with: Determine which course each participant shall be host for")
 
 
 # Assign id
@@ -248,6 +254,7 @@ assert ixS == oneFourth, "error when assigning idSShuffled, ixS = %s" % ixS
 assert ixM == oneFourth, "error when assigning idMShuffled, ixM = %s" % ixM
 assert ixD == oneFourth, "error when assigning idDShuffled, ixD = %s" % ixD
 assert ixN == oneFourth, "error when assigning idNShuffled, ixN = %s" % ixN
+logging.info("DONE with: Assign id")
 
 
 # Assign guests for the courses
@@ -310,6 +317,7 @@ for n in range(0, oneFourth):
     participants[ix].addGuest(getItemRotated(idS, 0, n))
     participants[ix].addGuest(getItemRotated(idM, 3, n))
     participants[ix].addGuest(getItemRotated(idD, 6, n)) 
+logging.info("DONE with: Assign guests for the courses");
 
     
 # Verify that any participant meet any other participant at most once
@@ -335,6 +343,7 @@ for id in allIds:
     assert len(meets) == 12, "participant with id = %s did not meet nine others, meets = %s" % (id, meets)
     assert len(set(meets)) == len(meets), "participant with id = %s: two participants meet more than once, meets = %s" % (id, meets)
 f_whoMeetsWho.close()
+logging.info("DONE with: Verify that any participant meet any other participant at most once")
 
 
 # Generate helper file for the organizer so he/she can easily see hosts and guests for all courses
@@ -352,6 +361,7 @@ for course in courses:
                                                    participants[ix].getFamilyName()))        
     f.write("\r\n\r\n")
 f.close()
+logging.info("DONE with: Generate helper file for the organizer so he/she can easily see hosts and guests for all courses")
 
 
 # Generate email1
@@ -375,6 +385,41 @@ for p in participants:
       guestNr = guestNr + 1
    f.write("\r\n\r\n")
 f.close()
+logging.info("DONE with: Generate email1")
+
+
+# Generate letter1
+for p in participants:
+   if p.isHostFor(COURSE_STARTER):
+      for guestId in p.getGuests():
+         ix = getIxById(participants, guestId)
+         fname = "letter1_" + participants[ix].getName() + participants[ix].getFamilyName() + ".txt"
+         fpath = os.path.join(args.outDir, fname)
+         f = open(fpath, "w")
+         f.write("Brev till: %s %s\r\n" % (participants[ix].getName(), participants[ix].getFamilyName()))
+         f.write("Förrätt på: %s\r\n" % p.getAddress())
+         f.write("\r\n") # Nice if you cat all such files
+         f.close()
+logging.info("DONE with: Generate letter1")
+
+
+# Generate letter2
+for p in participants:
+   if p.isHostFor(COURSE_MAIN):
+      for guestId in p.getGuests():
+         ix = getIxById(participants, guestId)
+         fname = "letter2_" + participants[ix].getName() + participants[ix].getFamilyName() + ".txt"
+         fpath = os.path.join(args.outDir, fname)
+         f = open(fpath, "w")
+         f.write("Brev till: %s %s\r\n" % (participants[ix].getName(), participants[ix].getFamilyName()))
+         f.write("Huvudrätt på: %s\r\n" % p.getAddress())
+         f.write("\r\n") # Nice if you cat all such files
+         f.close()
+logging.info("DONE with: Generate letter2")
+
+
+# Generate letter3
+#TODO
 
 
 logging.info("THE END SO FAR TODO")
@@ -386,14 +431,4 @@ print "dumping last 10 participants"
 for n in range(len(participants) - 10, len(participants)):
     participants[n].dump()   
 sys.exit(0)
-
-
-# Generate letters
-print "TODO Generate letters"
-
-
-"""
-This is a
-multilline comment
-"""
 
