@@ -85,13 +85,15 @@ Special considerations
 
 Requirements to make the algorithm work
 ---------------------------------------
-1. the number of participants shall be a multiple of 4
-2. the least number of participants must be TBD
-3. the number of participants living far from the center shall not be greater than 1/4 of the total number of participants
+1. The number of participants shall be a multiple of 4.
+2. The least number of participants must be 20.
+3. The number of participants living far from the center shall not be greater than 1/4 of the total number of participants.
 
 Workarounds if the requirements are not met
 -------------------------------------------
-1. not met: introduce dummy participants in the list and have empty seats
-2. not met: ask more persons to join
-3. not met: TBD
+1. Depends on the number.
+    1. If one too many then let the organizer participant not be part of the registered participants and afterwords manually add the organizer participant as guest to some course1, course2 and course3.
+    2. If one or two too few then register one or two _ghost participants_ that are host for course4. The hosts having these participants as guests will have two empty seats.
+2. Try to get more participants to join.
+3. Try to get more participants living in the center to join.
 
