@@ -114,7 +114,7 @@ class Participant(object):
         print "guests =", self.guests
 
 
-# Read the csv file and put the info in a list array of objects
+# Read the csv file downloaded from the Google form and put the info in a list array of objects
 csvDelimiter = '","'
 participants = []
 with open(args.csvFile) as f:
@@ -134,7 +134,7 @@ f.close()
 nbrOfParticipants = len(participants)
 oneFourth = nbrOfParticipants/4
 logging.info("Number of participants = %s", nbrOfParticipants)
-logging.info("DONE with: Read the csv file and put the info in a list array of objects")
+logging.info("DONE with: Read the csv file downloaded from the Google form and put the info in a list array of objects")
 assert nbrOfParticipants <= 400, "Number of participants cannot be larger than 400 due to implementation of id numbers"
 assert (oneFourth)*4 == nbrOfParticipants, "Number of participants is not a multiple of 4"
 #TODO need to assert that the strings name + familyName is unique, else letter files will be overwritten
@@ -353,7 +353,7 @@ for course in courses:
     f.write("=============== Värdar för %s ===============\r\n" % course)
     for p in participants:
         if p.isHostFor(course):
-            f.write("\r\n(id=%s) %s %s har dessa gäster:\r\n" % (p.getId(), p.getName(), p.getFamilyName()))
+            f.write("\r\n(id=%s) %s %s på %s har dessa gäster:\r\n" % (p.getId(), p.getName(), p.getFamilyName(), p.getAddress()))
             for guestId in p.getGuests():
                 ix = getIxById(participants, guestId)
                 f.write("\t\t(id=%s) %s %s\r\n" % (participants[ix].getId(),
@@ -418,17 +418,27 @@ for p in participants:
 logging.info("DONE with: Generate letter2")
 
 
-# Generate letter3
-#TODO
-
-
-logging.info("THE END SO FAR TODO")
-# DEBUG
-print "dumping first 5 participants"
-for n in range(0, 5):
-    participants[n].dump()   
-print "dumping last 10 participants"
-for n in range(len(participants) - 10, len(participants)):
-    participants[n].dump()   
-sys.exit(0)
-
+# Generate letter3, letter3.1, letter3.2 and letter3.3
+for p in participants:
+   if p.isHostFor(COURSE_MAIN):
+      fname = "letter3_" + p.getName() + p.getFamilyName() + ".txt"
+      fpath = os.path.join(args.outDir, fname)
+      f = open(fpath, "w")
+      f.write("Brev till: %s %s\r\n" % (p.getName(), p.getFamilyName()))
+      f.write("Nedan finns tre brev som ska delas ut när det är dags att\r\n")
+      f.write("cykla vidare till efterrätten. Klipp itu pappret\r\n")
+      f.write("och dela ut till respektive mottagare\r\n")
+      attendees = []
+      attendees.append(p.getId())
+      attendees.extend(p.getGuests())
+      for a in attendees:
+         ix = getIxById(participants, a)
+         for p2 in participants:
+            if p2.isHostFor(COURSE_DESSERT) and a in p2.getGuests():
+               f.write("\r\n\r\n\r\n\r\n\r\n")
+               f.write("----------------------- klipp längs med denna linjen ---------------------\r\n")
+               f.write("\r\n\r\n")
+               f.write("Brev till: %s %s\r\n" % (participants[ix].getName(), participants[ix].getFamilyName()))
+               f.write("Efterrätt på: %s\r\n" % p2.getAddress())
+      f.close()
+logging.info("DONE with: Generate letter3, letter3.1, letter3.2 and letter3.3")
