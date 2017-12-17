@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# status (TODO/DONE): DONE
 
 import argparse
 import logging
 import os
 import re
 import sys
+from random import randint
 
 # Configuration
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
@@ -220,145 +219,63 @@ phoneNbrs = ["0703135275",
 specialFood = ["vegetarian",
     "allergisk mot nötter och mandel",
     "allergisk mot laktos",
+    "vegetarian",
+    "allergisk mot laktos",
     "allergisk mot gluten",
-    "allergisk mot stenfrukter"]
+    "vegetarian",
+    "allergisk mot stenfrukter",
+    "allergisk mot äpplen",
+    "allergisk mot banan",
+    "vegetarian",
+    "allergisk mot kiwi",
+    "allergisk mot mandel",
+    "allergisk mot nötter",
+    "vegetarian",
+    "allergisk mot räkor",
+    "allergisk mot torsk",
+    "vegetarian",
+    "vegetarian (äter fisk och skaldjur)",
+    "allergisk mot gluten"]
 
-meals = ["förrätt",
-    "huvudrätt",
-    "efterrätt",
-    "nattamat"]
-
-mustHaveText = "Måste ha nattamat (bor utanför Harlösa)"
-dontCareText = "Inget önskemål" 
-wantTextIngress = "Vill ha "
-notWantTextIngress = "Vill inte ha "
-
-# Pre-generated random values from 0 to 29
-MAX_RAND = 29
-MIN_RAND = 0
-RAND_SPAN = MAX_RAND - MIN_RAND
-randomPreGenerated = [" 14 ",
-    " 20 ",
-    " 3 ",
-    " 28 ",
-    " 27 ",
-    " 3 ",
-    " 12 ",
-    " 15 ",
-    " 7 ",
-    " 0 ",
-    " 2 ",
-    " 1 ",
-    " 4 ",
-    " 3 ",
-    " 0 ",
-    " 12 ",
-    " 29 ",
-    " 19 ",
-    " 7 ",
-    " 14 ",
-    " 23 ",
-    " 9 ",
-    " 29 ",
-    " 0 ",
-    " 20 ",
-    " 7 ",
-    " 12 ",
-    " 0 ",
-    " 10 ",
-    " 6 ",
-    " 17 ",
-    " 8 ",
-    " 6 ",
-    " 20 ",
-    " 22 ",
-    " 6 ",
-    " 1 ",
-    " 0 ",
-    " 8 ",
-    " 20 "]
-
-def getMyRandom(i, seed):
-    return int(randomPreGenerated[(i + seed) % len(randomPreGenerated)])
+desiredMeals = ["Måste ha nattamat (bor utanför Harlösa)",
+    "Vill ha förrätt",
+    "Vill inte ha förrätt",
+    "Vill ha huvudrätt",
+    "Vill inte ha huvudrätt",
+    "Vill ha efterrätt",
+    "Vill inte ha efterrätt",
+    "Vill ha nattamat",
+    "Vill inte ha nattamat"]
     
-
 assert len(familyNames) == 40, "nbr of familyNames not equal to 40, is equal to %s" % len(familyNames)
 assert len(names) == 40, "nbr of names not equal to 40, is equal to %s" % len(names)
 assert len(adresses) == 40, "nbr of adresses not equal to 40, is equal to %s" % len(adresses)
 assert len(emails) == 40, "nbr of emails not equal to 40, is equal to %s" % len(emails)
 assert len(phoneNbrs) == 40, "nbr of phoneNbrs not equal to 40, is equal to %s" % len(phoneNbrs)
-assert len(randomPreGenerated) == 40, "nbr of randomPreGenerated not equal to 40, is equal to %s" % len(randomPreGenerated)
-
 
 # Parse command line arguments
-argparser = argparse.ArgumentParser(description="Generates test data which can be used as input for combine-safar-dinner.py")
-argparser.add_argument("-o", "--out-dir",
+argparser = argparse.ArgumentParser(description="Generates test data (csv file) which can be used as input for combine-safar-dinner.py")
+argparser.add_argument("-o", "--out",
                         required = True,
-                        dest = "outdir",
-                        help = "Directory that will be created. It will contain all generated files.")
+                        dest = "outFileName",
+                        help = "File that will be created.")
 args = argparser.parse_args()
-try:
-    os.mkdir(args.outdir)
-    logging.info("Directory %s was created." % args.outdir)
-except OSError as e:
-    logging.error("Failed to create directory %s. Error = %s." % (args.outdir, e.strerror))
-    sys.exit(-1)
 
-
-# generate text files (one per participant)
-for i in range (0, len(familyNames)):
-    fname = str(i).zfill(2) + ".txt"
-    fpath = os.path.join(args.outdir, fname)
-    f=open(fpath, "w")
-    f.write("Efternamn: %s\r\n" % familyNames[i])
-    f.write("Namn: %s\r\n" % names[i])
-    f.write("Adress: %s\r\n" % adresses[i])
-    f.write("Email: %s\r\n" % emails[i])
-    f.write("Telefonnummer: %s\r\n" % phoneNbrs[i])
-    f.write("Önskemål om måltid: ")
-
-    # Simulate different "what meal they want"
-    randomValue = getMyRandom(i, 31)  
-    if (randomValue <= RAND_SPAN/6): 
-        f.write("%s\r\n" % mustHaveText) 
-    elif (randomValue <= RAND_SPAN/2):
-        f.write("%s\r\n" % dontCareText)   
+def getPreferredMeal():
+    if randint(0, 1) == 1:
+        return ("Inget önskemål")
     else:
-        randomValue = getMyRandom(i, 14)
-        if (randomValue < RAND_SPAN/2):
-            f.write("%s" % wantTextIngress)
-        else:
-            f.write("%s" % notWantTextIngress)
-        randomValue = getMyRandom(i, 7)
-        if (randomValue < RAND_SPAN/4):
-            f.write("%s\r\n" % meals[0])
-        elif (randomValue < RAND_SPAN/2):
-            f.write("%s\r\n" % meals[1])
-        elif (randomValue < 3*RAND_SPAN/4):
-            f.write("%s\r\n" % meals[2])
-        else:
-            f.write("%s\r\n" % meals[3])
+        return desiredMeals[randint(0, len(desiredMeals) - 1)]
 
-    # Simulate different food requirements
-    randomValue = getMyRandom(i, 0)
-    if (randomValue < 5):
-        f.write("Vegetarian, allergier eller liknande (jag): %s\r\n" % specialFood[randomValue])
+def getSpecialFood():
+    if randint(0, 1) == 1:
+        return ("")
     else:
-        f.write("Vegetarian, allergier eller liknande (jag): \r\n")
-    randomValue = getMyRandom(i, 17)
-    if (randomValue < 5):
-        f.write("Vegetarian, allergier eller liknande (make/maka/sambo/...): %s\r\n" % specialFood[randomValue])
-    else:
-        f.write("Vegetarian, allergier eller liknande (make/maka/sambo/...): \r\n")
-
-    f.write("\r\n") # comes handy if we run cat * in the out directory
-    f.close()
-
+        return specialFood[randint(0, len(specialFood) - 1)]
 
 # generate one .csv file with all participant, in the same format as
 # a Responses -> Download .csv file from Google forms (https://docs.google.com/forms)
-csvFilePath = os.path.join(args.outdir, "all.csv")
-csvFile=open(csvFilePath, "w")
+f=open(args.outFileName, "w")
 
 # Print header in the csv file
 header = "\"Timestamp\","
@@ -370,23 +287,47 @@ header += "\"Telefonnummer\","
 header += "\"Önskemål om måltid\","
 header += "\"Vegetarian, allergier eller liknande (jag)\","
 header += "\"Vegetarian, allergier eller liknande (make/maka/sambo/...)\""
-csvFile.write(header)
+f.write(header)
 
 # Print data in the csv file
+TIMESTAMP = "2017/09/07 10:03:37 pm EET" # dummy timestamp
 for i in range (0, len(familyNames)):
-    txtFileName = str(i).zfill(2) + ".txt"
-    txtFilePath = os.path.join(args.outdir, txtFileName)
-    txtFile=open(txtFilePath, "r")
-    txtToWrite = "\r\n"
-    txtToWrite = txtToWrite + "\"2017/09/07 10:03:37 pm EET\"," # dummy timestamp
-    for line in txtFile:
-        if len(line.rstrip('\n\r')) == 0:
-            continue # skip empty lines
-        txtToWrite = txtToWrite + "\""
-        # Removes everything before ": " and removes line feed and carriage return   
-        txtToWrite = txtToWrite + (line.split(': ', 1)[-1]).rstrip('\n\r') 
-        txtToWrite = txtToWrite + "\","
-    txtToWrite = txtToWrite[:-1] # remove last character (an unwanted comma)
-    csvFile.write(txtToWrite)
-    txtFile.close()
-csvFile.close()
+    f.write("\r\n")
+
+    f.write("\"")
+    f.write(TIMESTAMP)
+    f.write("\",")
+
+    f.write("\"")
+    f.write(familyNames[i])
+    f.write("\",")
+
+    f.write("\"")
+    f.write(names[i])
+    f.write("\",")
+
+    f.write("\"")
+    f.write(adresses[i])
+    f.write("\",")
+
+    f.write("\"")
+    f.write(emails[i])
+    f.write("\",")
+
+    f.write("\"")
+    f.write(phoneNbrs[i])
+    f.write("\",")
+
+    f.write("\"")
+    f.write(getPreferredMeal())
+    f.write("\",")
+
+    f.write("\"")
+    f.write(getSpecialFood())
+    f.write("\",")
+
+    f.write("\"")
+    f.write(getSpecialFood())
+    f.write("\"")
+
+f.close()
